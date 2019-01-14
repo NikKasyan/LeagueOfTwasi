@@ -30,8 +30,8 @@ public class SummonerUtil {
         }
     }
 
-    public static SummonerProperties getPropertyById(String name, Region region) {
-        return datafetcher.getPropertyById(name, region);
+    public static SummonerProperties getPropertyById(String id, Region region) {
+        return datafetcher.getPropertyById(id, region);
     }
 
     public static SummonerProperties getPropertyByName(String name, Region region) {

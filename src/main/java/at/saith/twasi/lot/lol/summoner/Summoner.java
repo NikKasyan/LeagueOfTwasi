@@ -2,6 +2,7 @@ package at.saith.twasi.lot.lol.summoner;
 
 
 import at.saith.twasi.lot.lol.SummonerUtil;
+import at.saith.twasi.lot.lol.data.database.mongodb.summoner.MongoDBSummoner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,31 +13,30 @@ public class Summoner {
     private SummonerProperties properties;
     private HashMap<QueueType, SummonerRankedStats> rankedStats;
     private Region region;
-
+    private long lastUpdate;
     public Summoner(SummonerProperties properties,
                     ArrayList<SummonerRankedStats> stats,
                     Region region) {
         this.properties = properties;
         this.rankedStats = new HashMap<>();
         this.region = region;
+        this.lastUpdate = System.currentTimeMillis();
         setRankedStats(stats);
     }
-    /*
+
 
     public Summoner(MongoDBSummoner summoner,String region) {
         this(summoner.getProperties(), summoner.getRankedStats(),region);
     }
-    public Summoner(MongoDBSummoner.Properties properties, List<RankedStats> rankedStats, String region) {
-        this.properties = new SummonerProperties(
-                properties.getProfileIconId(),
+
+    public Summoner(MongoDBSummoner.Properties properties, List<MongoDBSummoner.RankedStats> rankedStats, String region) {
+        this.properties = new SummonerProperties(properties.getProfileIconId(),
                 properties.getName(), properties.getSummonerLevel(),
-                properties.getRevisionDate(),
-                properties.getId(),
-                properties.getAccountId(),
-                properties.getLastUpdate());
+                properties.getRevisionDate(), properties.getId(),
+                properties.getAccountId(), properties.getPuuid());
         this.rankedStats = new HashMap<>();
         if(rankedStats != null) {
-            for(RankedStats rankedStat : rankedStats) {
+            for (MongoDBSummoner.RankedStats rankedStat : rankedStats) {
                 this.rankedStats.put(
                         QueueType.byName(rankedStat.getQueueType()),
                         new SummonerRankedStats(rankedStat.getRank(),
@@ -50,7 +50,7 @@ public class Summoner {
         }
         this.region = Region.byName(region);
     }
-*/
+
 
     public Summoner() {
         this.properties = new SummonerProperties();
@@ -78,16 +78,20 @@ public class Summoner {
         }
     }
 
-    public static Summoner byId(long id, Region region) {
-        return SummonerUtil.getSummoner(id, region);
+    public static Summoner byId(String id, Region region) {
+        return SummonerUtil.getSummonerById(id, region);
     }
 
     public static Summoner byName(String summonerName) {
         return byName(summonerName, Region.EUW1);
     }
 
-    public static Summoner byName(String summonerName, Region server) {
-        return SummonerUtil.getSummoner(summonerName, server);
+    public static Summoner byName(String summonerName, Region region) {
+        return SummonerUtil.getSummonerByName(summonerName, region);
 
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
     }
 }

@@ -1,5 +1,6 @@
 package at.saith.twasi.lot.json;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -16,6 +17,13 @@ public class JsonUrlParser {
         return new JsonParser().parse(parseUrl(url)).getAsJsonObject();
     }
 
+    public JsonElement parseUrlAsJsonElement(URL url) {
+        return new JsonParser().parse(parseUrl(url));
+    }
+
+    public JsonElement parseUrlAsJsonElement(String urlString) {
+        return new JsonParser().parse(parseUrl(urlString));
+    }
     public JsonObject parseUrlAsJsonObject(String urlString) {
         return new JsonParser().parse(parseUrl(urlString)).getAsJsonObject();
     }

@@ -12,7 +12,6 @@ public class SummonerProperties {
     private long revisionDate;
     private String id;
     private String accountId;
-    private long lastUpdate;
     private String puuid;
 
     public SummonerProperties() {
@@ -34,14 +33,12 @@ public class SummonerProperties {
         this.id = jsonObject.get("id").getAsString();
         this.accountId = jsonObject.get("accountId").getAsString();
         this.puuid = jsonObject.get("puuid").getAsString();
-        this.lastUpdate = System.currentTimeMillis();
     }
 
     public SummonerProperties(long profileIconId, String name,
                               long summonerLevel,
                               long revisionDate, String id, String accountId,
-                              String puuid,
-                              long lastUpdate) {
+                              String puuid) {
         this.profileIconId = profileIconId;
         this.name = name;
         this.summonerLevel = summonerLevel;
@@ -49,7 +46,6 @@ public class SummonerProperties {
         this.puuid = puuid;
         this.revisionDate = revisionDate;
         this.accountId = accountId;
-        this.lastUpdate = lastUpdate;
     }
 
     public long getProfileIconId() {
@@ -74,10 +70,6 @@ public class SummonerProperties {
 
     public String getAccountId() {
         return accountId;
-    }
-
-    public long lastUpdate() {
-        return lastUpdate;
     }
 
     public String getPuuid() {

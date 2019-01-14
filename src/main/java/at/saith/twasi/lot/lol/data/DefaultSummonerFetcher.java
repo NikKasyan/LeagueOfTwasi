@@ -1,8 +1,9 @@
 package at.saith.twasi.lot.lol.data;
 
-import at.saith.twasi.lot.lol.summoner.Region;
-import at.saith.twasi.lot.lol.summoner.Summoner;
-import at.saith.twasi.lot.lol.summoner.SummonerProperties;
+import at.saith.twasi.lot.lol.summoner.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DefaultSummonerFetcher extends SummonerFetcher {
 
@@ -28,5 +29,15 @@ public class DefaultSummonerFetcher extends SummonerFetcher {
     @Override
     public SummonerProperties getPropertyById(String name, Region region) {
         return getPropertyByName("", region);
+    }
+
+    @Override
+    public ArrayList<SummonerRankedStats> getRankedStats(String id, Region region) {
+        return new ArrayList<SummonerRankedStats>(Arrays.asList(new SummonerRankedStats()));
+    }
+
+    @Override
+    public SummonerRankedStats getRankedStats(String id, Region region, QueueType type) {
+        return getRankedStats(id, region).get(0);
     }
 }
