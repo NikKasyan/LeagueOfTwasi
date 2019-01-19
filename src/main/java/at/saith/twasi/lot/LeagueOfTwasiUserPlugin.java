@@ -15,4 +15,6 @@ public class LeagueOfTwasiUserPlugin extends TwasiUserPlugin {
         list.add(new RankVariable(this));
         return list;
     }
+
+
 }

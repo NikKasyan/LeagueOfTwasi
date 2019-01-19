@@ -34,6 +34,7 @@ public class LeagueOfTwasi extends TwasiPlugin {
     public static DatabaseService getDataBase() {
         return ServiceRegistry.get(DatabaseService.class);
     }
+
     public static String getPrefix() {
         return prefix;
     }

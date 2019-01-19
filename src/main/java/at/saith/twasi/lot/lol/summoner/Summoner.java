@@ -14,6 +14,7 @@ public class Summoner {
     private HashMap<QueueType, SummonerRankedStats> rankedStats;
     private Region region;
     private long lastUpdate;
+
     public Summoner(SummonerProperties properties,
                     ArrayList<SummonerRankedStats> stats,
                     Region region) {
@@ -25,8 +26,8 @@ public class Summoner {
     }
 
 
-    public Summoner(MongoDBSummoner summoner,String region) {
-        this(summoner.getProperties(), summoner.getRankedStats(),region);
+    public Summoner(MongoDBSummoner summoner, String region) {
+        this(summoner.getProperties(), summoner.getRankedStats(), region);
     }
 
     public Summoner(MongoDBSummoner.Properties properties, List<MongoDBSummoner.RankedStats> rankedStats, String region) {
@@ -35,7 +36,7 @@ public class Summoner {
                 properties.getRevisionDate(), properties.getId(),
                 properties.getAccountId(), properties.getPuuid());
         this.rankedStats = new HashMap<>();
-        if(rankedStats != null) {
+        if (rankedStats != null) {
             for (MongoDBSummoner.RankedStats rankedStat : rankedStats) {
                 this.rankedStats.put(
                         QueueType.byName(rankedStat.getQueueType()),

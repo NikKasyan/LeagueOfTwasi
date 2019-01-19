@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public enum QueueType {
     RANKED_SOLO_5X5("RANKED_SOLO_5x5", "solo"),
     RANKED_FLEX_SR("RANKED_FLEX_SR", "team", "flex"),
-    RANKED_SOLO_3X3("RANKED_FLEX_3x3", "team3x3", "3x3");
+    RANKED_SOLO_3X3("RANKED_FLEX_3x3", "team3x3", "3x3", "flex_3");
     private String queueType;
     private ArrayList<String> aliases = new ArrayList<>();
 

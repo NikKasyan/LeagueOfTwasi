@@ -196,8 +196,9 @@ public class MongoDBSummoner {
             return name;
         }
 
-        public void setName(String name) {
+        public RankedStats setName(String name) {
             this.name = name;
+            return this;
         }
 
     }

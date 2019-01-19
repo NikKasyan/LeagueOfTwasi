@@ -22,6 +22,7 @@ public abstract class SummonerFetcher {
     public abstract ArrayList<SummonerRankedStats> getRankedStats(String id, Region region);
 
     public abstract SummonerRankedStats getRankedStats(String id, Region region, QueueType type);
+
     public final String toString() {
         return description;
     }

@@ -24,6 +24,7 @@ public class JsonUrlParser {
     public JsonElement parseUrlAsJsonElement(String urlString) {
         return new JsonParser().parse(parseUrl(urlString));
     }
+
     public JsonObject parseUrlAsJsonObject(String urlString) {
         return new JsonParser().parse(parseUrl(urlString)).getAsJsonObject();
     }
