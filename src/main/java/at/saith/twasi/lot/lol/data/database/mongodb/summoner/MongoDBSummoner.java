@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Entity(value = "Summoner", noClassnameStored = true)
+@Entity(value = "summoners", noClassnameStored = true)
 public class MongoDBSummoner {
 
     private Properties properties;

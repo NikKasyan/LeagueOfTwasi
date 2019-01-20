@@ -9,7 +9,7 @@ public class InvalidAPIKeyException extends Exception {
     public InvalidAPIKeyException(String apikey) {
         this.apikey = apikey;
     }
-
+    
     public String getMessage() {
         return "The APIKEY(" + apikey + ") is invalid!";
     }
