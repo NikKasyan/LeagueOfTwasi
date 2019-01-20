@@ -1,26 +1,80 @@
 package at.saith.twasi.lot.lol.data.database.mongodb.summoner;
 
-import org.bson.types.ObjectId;
+import at.saith.twasi.lot.lol.summoner.Summoner;
+import at.saith.twasi.lot.lol.summoner.SummonerProperties;
+import at.saith.twasi.lot.lol.summoner.SummonerRankedStats;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.NotSaved;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+@Entity(value = "Summoner", noClassnameStored = true)
 public class MongoDBSummoner {
 
     private Properties properties;
     private List<RankedStats> rankedstats;
+    private String region;
+    @Id
+    private String id;
+    private String name;
+    @NotSaved
+    private boolean saveable = true;
 
     public MongoDBSummoner() {
     }
 
-
-    public MongoDBSummoner(Properties properties, RankedStats... stats) {
-        this.properties = properties;
-        this.rankedstats = Arrays.asList(stats);
+    public boolean isSaveable() {
+        return saveable;
     }
 
+
+    public MongoDBSummoner(Properties properties, List<RankedStats> stats, String regionString) {
+        this.properties = properties;
+        this.id = properties.getId();
+        this.name = properties.getName();
+        this.rankedstats = stats;
+        this.region = regionString;
+        this.saveable = properties.isSaveable() && stats.get(0).isSaveable();
+    }
+
+    public Summoner toSummoner() {
+        return new Summoner(properties, rankedstats, region);
+    }
+
+    public static MongoDBSummoner fromSummoner(Summoner summoner) {
+
+        SummonerProperties summonerProperties = summoner.getProperties();
+        Collection<SummonerRankedStats> rankedStats = summoner.getRankedStats();
+        Properties properties = new Properties();
+        List<RankedStats> stats = new ArrayList<>(rankedStats.size());
+
+        properties.
+                setRevisionDate(summonerProperties.getRevisionDate()).
+                setProfileIconId(summonerProperties.getProfileIconId()).
+                setPuuid(summonerProperties.getPuuid()).
+                setAccountId(summonerProperties.getAccountId()).
+                setSummonerLevel(summonerProperties.getSummonerLevel()).
+                setName(summonerProperties.getName()).
+                setId(summonerProperties.getId());
+        for (SummonerRankedStats rankedStat : rankedStats) {
+            RankedStats stat = new RankedStats();
+            stat.
+                    setQueueType(rankedStat.getQueueType().name()).
+                    setLeaguePoints(rankedStat.getLeaguePoints()).
+                    setLosses(rankedStat.getLosses()).
+                    setWins(rankedStat.getWins()).
+                    setMiniSeries(rankedStat.getMiniSeriesProgress()).
+                    setRank(rankedStat.getRank()).
+                    setTier(rankedStat.getTier());
+            stats.add(stat);
+        }
+
+
+        return new MongoDBSummoner(properties, stats, summoner.getRegion().name());
+    }
 
     public Properties getProperties() {
         return properties;
@@ -30,11 +84,18 @@ public class MongoDBSummoner {
         return rankedstats;
     }
 
-    @Entity(value = "Properties", noClassnameStored = true)
-    public
-    static class Properties {
-        @Id
-        private ObjectId _id;
+
+    public String getRegion() {
+        return region;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+
+    public static class Properties {
+
         private long profileIconId;
         private String name;
         private long summonerLevel;
@@ -42,13 +103,24 @@ public class MongoDBSummoner {
         private String id;
         private String accountId;
         private String puuid;
+        @NotSaved
+        private boolean saveable = true;
 
-        public ObjectId getObjId() {
-            return _id;
+        public boolean isSaveable() {
+            return saveable;
         }
 
-        public void setProfileIconId(long profileIconId) {
+
+        public Properties() {
+        }
+
+        public Properties(boolean saveable) {
+            this.saveable = saveable;
+        }
+
+        public Properties setProfileIconId(long profileIconId) {
             this.profileIconId = profileIconId;
+            return this;
         }
 
         public Properties setName(String name) {
@@ -111,12 +183,7 @@ public class MongoDBSummoner {
 
     }
 
-    @Entity(value = "RankedStats", noClassnameStored = true)
-    public
-    static class RankedStats {
-        @Id
-        private ObjectId _id;
-        private String name;
+    public static class RankedStats {
         private String rank;
         private String tier;
         private long leaguePoints;
@@ -124,13 +191,21 @@ public class MongoDBSummoner {
         private String queueType;
         private long wins;
         private long losses;
+        @NotSaved
+        private boolean saveable = true;
 
-        public String getRank() {
-            return rank;
+        public RankedStats() {
         }
 
-        public ObjectId getObjId() {
-            return _id;
+        public RankedStats(boolean saveable) {
+            this.saveable = saveable;
+        }
+
+        public boolean isSaveable() {
+            return saveable;
+        }
+        public String getRank() {
+            return rank;
         }
 
         public RankedStats setRank(String rank) {
@@ -191,16 +266,6 @@ public class MongoDBSummoner {
             this.losses = losses;
             return this;
         }
-
-        public String getName() {
-            return name;
-        }
-
-        public RankedStats setName(String name) {
-            this.name = name;
-            return this;
-        }
-
     }
 
 }

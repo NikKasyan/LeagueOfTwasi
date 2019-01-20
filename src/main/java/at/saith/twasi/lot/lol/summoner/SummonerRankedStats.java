@@ -3,8 +3,6 @@ package at.saith.twasi.lot.lol.summoner;
 
 import com.google.gson.*;
 
-import java.text.DateFormat;
-
 public class SummonerRankedStats {
 
     private String rank;
@@ -27,11 +25,11 @@ public class SummonerRankedStats {
         this.rank = jsonObject.get("rank").getAsString();
         this.tier = jsonObject.get("tier").getAsString();
         this.leaguePoints = jsonObject.get("leaguePoints").getAsLong();
-        JsonObject miniSeries = jsonObject.get("miniSeries").getAsJsonObject();
+        JsonElement miniSeries = jsonObject.get("miniSeries");
         if (miniSeries == null) {
             this.miniSeriesProgress = "";
         } else {
-            this.miniSeriesProgress = miniSeries.get("progress").getAsString();
+            this.miniSeriesProgress = miniSeries.getAsJsonObject().get("progress").getAsString();
         }
 
         String queueTypeString = jsonObject.get("queueType").getAsString();
@@ -85,15 +83,7 @@ public class SummonerRankedStats {
     }
 
     public String toString() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(SummonerRankedStats.class, this)
-                .enableComplexMapKeySerialization()
-                .serializeNulls()
-                .setDateFormat(DateFormat.LONG)
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .setPrettyPrinting()
-                .setVersion(1.0)
-                .create();
-        return gson.toString();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
 }

@@ -19,9 +19,10 @@ public class LeagueOfTwasi extends TwasiPlugin {
 
     @Override
     public void onActivate() {
+
         TwasiLogger.log.info(prefix + " enabled.");
         try {
-            SummonerUtil.setup(new MongoDBFetcher(""));
+            SummonerUtil.setup(new MongoDBFetcher("RGAPI-9e1e92c3-0641-4c31-bd04-bbf7c016635d"));
         } catch (InvalidAPIKeyException e) {
             e.printStackTrace();
         }

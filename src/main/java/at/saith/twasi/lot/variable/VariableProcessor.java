@@ -7,27 +7,38 @@ public class VariableProcessor {
 
     public static String process(String name, String... params) {
         String variable = "";
-        if (params == null)
-            return variable;
-        //$rank((summonerId|summonerName),[stat],[region])
-        if (params.length >= 1 && params.length <= 3) {
-            //SummonerIdentifier may be the summonerId or summonerName
-            String summonerIdentifier = params[0];
-            String varName = "rankedstats";
-            String regionString = "euw1";
-            if (params.length >= 2) {
-                varName = params[1];
+        try {
+            if (params == null)
+                return variable;
+            //$rank((summonerId|summonerName),[stat],[region])
+            if (params.length >= 1 && params.length <= 4) {
+                //SummonerIdentifier may be the summonerId or summonerName
+                String summonerIdentifier = params[0];
+                String varName = "rankedstats";
+                String regionString = "euw1";
+                String queueTypeString = QueueType.RANKED_SOLO_5X5.name();
+                if (params.length >= 2) {
+                    varName = params[1];
+                }
+                if (params.length >= 3) {
+                    regionString = params[2];
+                }
+                if (params.length >= 4) {
+                    queueTypeString = params[3];
+                }
+                Region region = Region.byName(regionString);
+                QueueType type = QueueType.byName(queueTypeString);
+                if (name.equalsIgnoreCase("rank")) {
+                    variable = getRankVariable(varName, summonerIdentifier, region, type);
+                } else {
+                    variable = getPropertyVariable(varName, summonerIdentifier, region);
+                }
             }
-            if (params.length >= 3) {
-                regionString = params[2];
-            }
-            Region region = Region.byName(regionString);
-            if (name.equalsIgnoreCase("rank")) {
-                variable = getRankVariable(varName, summonerIdentifier, region);
-            } else {
-                variable = getPropertyVariable(varName, summonerIdentifier, region);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ERROR loading Summoner(League of Twasi)";
         }
+
         return variable;
     }
 
@@ -36,10 +47,10 @@ public class VariableProcessor {
         return getPropertyVariable(varName, properties);
     }
 
-    private static String getRankVariable(String varName, String summonerIdentifier, Region region) {
+    private static String getRankVariable(String varName, String summonerIdentifier, Region region, QueueType type) {
         Summoner summoner = SummonerUtil.getSummonerByIdentifier(summonerIdentifier, region);
         String variable = "";
-        SummonerRankedStats stats = summoner.getRankedStats(QueueType.RANKED_SOLO_5X5);
+        SummonerRankedStats stats = summoner.getRankedStats(type);
 
         if (varName.equalsIgnoreCase("rankedstats")) {
             variable = rankedStatsToString(stats);

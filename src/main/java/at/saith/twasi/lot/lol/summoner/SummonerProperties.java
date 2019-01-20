@@ -1,8 +1,9 @@
 package at.saith.twasi.lot.lol.summoner;
 
-import com.google.gson.*;
-
-import java.text.DateFormat;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class SummonerProperties {
 
@@ -77,15 +78,7 @@ public class SummonerProperties {
     }
 
     public String toString() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(SummonerProperties.class, this)
-                .enableComplexMapKeySerialization()
-                .serializeNulls()
-                .setDateFormat(DateFormat.LONG)
-                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .setPrettyPrinting()
-                .setVersion(1.0)
-                .create();
-        return gson.toString();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
 }

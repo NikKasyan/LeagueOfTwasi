@@ -5,6 +5,7 @@ import at.saith.twasi.lot.lol.SummonerUtil;
 import at.saith.twasi.lot.lol.data.database.mongodb.summoner.MongoDBSummoner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -92,7 +93,23 @@ public class Summoner {
 
     }
 
+    public String toString() {
+        StringBuilder rankedStatsString = new StringBuilder("");
+        for (SummonerRankedStats rankedStat : rankedStats.values()) {
+            rankedStatsString.append("," + rankedStat);
+        }
+        return "{\n" +
+                "\"properties\":" + properties + ",\n" +
+                "\"stats\":[\n" + rankedStatsString.substring(1) + "\n], \n" +
+                "\"lastupdate\": " + lastUpdate + ",\n" +
+                "\"region\":\"" + region + "\"" +
+                "\n}";
+    }
     public long getLastUpdate() {
         return lastUpdate;
+    }
+
+    public Collection<SummonerRankedStats> getRankedStats() {
+        return rankedStats.values();
     }
 }

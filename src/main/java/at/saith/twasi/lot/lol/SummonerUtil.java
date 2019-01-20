@@ -43,6 +43,6 @@ public class SummonerUtil {
     }
 
     public static Summoner getSummonerByName(String name, Region region) {
-        return datafetcher.getSummonerById(name, region);
+        return datafetcher.getSummonerByName(name, region);
     }
 }

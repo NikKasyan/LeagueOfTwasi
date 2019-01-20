@@ -4,3 +4,4 @@ author: Saith
 description: Creates variables you can use in a command.
 helpText: Use $rank([server],(summonerId|name),[SOLO|FLEX|FLEX_3])
 version: 1.0
+messageHandler: true

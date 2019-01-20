@@ -1,4 +1,4 @@
-package at.saith.twasi.lot.lol.data;
+package at.saith.twasi.lot.lol;
 
 import at.saith.twasi.lot.json.JsonUrlParser;
 import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
@@ -14,10 +14,12 @@ import net.twasi.core.logger.TwasiLogger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class RiotUtil {
     private static String API_KEY;
-    private static RateLimitation rateLimitation;
+    private static HashMap<Region, RateLimitationManager> rateLimitationManagers;
+    private static final long updateRate = 120_000L;//In millis
     private static final String BASE_URL = "https://%REGION%.api.riotgames.com/";
     private static final String STATUS_URL = BASE_URL + "lol/status/v3/shard-data";
     private static final String SUMMONER_BY_NAME_URL = BASE_URL + "lol/summoner/v4/summoners/by-name/";
@@ -33,10 +35,15 @@ public class RiotUtil {
                 API_KEY = null;
                 throw new InvalidAPIKeyException(apikey);
             }
-            rateLimitation = new RateLimitation();
+            rateLimitationManagers = new HashMap<>();
         }
     }
 
+
+    public static Summoner getSummonerByProperty(SummonerProperties properties, Region region) {
+        ArrayList<SummonerRankedStats> stats = getRankedStatsById(properties.getId(), region);
+        return new Summoner(properties, stats, region);
+    }
     public static Summoner getSummonerByName(String name, Region region) {
         SummonerProperties properties = getPropertyByName(name, region);
         ArrayList<SummonerRankedStats> rankedStats = getRankedStatsById(properties.getId(), region);
@@ -80,18 +87,44 @@ public class RiotUtil {
         return stats;
     }
 
-    private static JsonArray getJsonArrayFromUrl(String urlString, Region region, String params) {
-        URL summonerPropertiesUrl = getValidURL(urlString, region);
-        return new JsonUrlParser().parseUrlAsJsonElement(summonerPropertiesUrl).getAsJsonArray();
+    public static boolean summonerUpToDate(Summoner summoner) {
+        return summoner.getLastUpdate() + updateRate >= System.currentTimeMillis();
     }
 
-    private static JsonObject getJsonObjectFromUrl(String urlString, Region region, String params) {
-        URL summonerPropertiesUrl = getValidURL(urlString, region);
-        return new JsonUrlParser().parseUrlAsJsonObject(summonerPropertiesUrl);
+    private static JsonArray getJsonArrayFromUrl(String urlString, Region region, String param) {
+        URL summonerPropertiesUrl = getValidURL(urlString, param, region);
+        if (checkRateLimitation(region, urlString)) {
+
+        }
+        return new JsonUrlParser(summonerPropertiesUrl).parseUrlAsJsonElement().getAsJsonArray();
+    }
+
+    private static boolean checkRateLimitation(Region region, String urlString) {
+        return true;
+        /*URL url = getValidURL(urlString,region);
+        RateLimitationManager rateLimitationManager = rateLimitationManagers.get(region);
+        if(rateLimitationManager == null){
+            rateLimitationManager = new RateLimitationManager();
+            rateLimitationManagers.put(region,rateLimitationManager);
+        }
+        return rateLimitationManager.check(url);
+    */
+    }
+
+    private static JsonObject getJsonObjectFromUrl(String urlString, Region region, String param) {
+        URL summonerPropertiesUrl = getValidURL(urlString, param, region);
+
+        return getJsonObjectFromUrl(summonerPropertiesUrl);
+    }
+
+    private static JsonObject getJsonObjectFromUrl(URL url) {
+
+        return new JsonUrlParser(url).parseUrlAsJsonObject();
     }
 
     private static boolean isValidKey(String apikey) {
-        JsonObject object = new JsonUrlParser().parseUrlAsJsonObject(getValidURL(STATUS_URL, "euw1", apikey));
+        URL statusUrl = getValidURL(STATUS_URL, "euw1", apikey);
+        JsonObject object = getJsonObjectFromUrl(statusUrl);
         if (object == null) {
             return false;
         }
@@ -103,8 +136,9 @@ public class RiotUtil {
         return false;
     }
 
-    private static URL getValidURL(String urlString, String method, String param, Region region) {
-        return getValidURL(urlString + method + param, region.toString(), API_KEY);
+
+    private static URL getValidURL(String urlString, String param, Region region) {
+        return getValidURL(urlString + param, region.toString(), API_KEY);
     }
 
     private static URL getValidURL(String urlString, String regionString, String apiKey) {
@@ -123,11 +157,5 @@ public class RiotUtil {
 
     private static URL getValidURL(String urlString, String regionString) {
         return getValidURL(urlString, regionString, API_KEY);
-    }
-
-    private static class RateLimitation {
-        public RateLimitation() {
-
-        }
     }
 }

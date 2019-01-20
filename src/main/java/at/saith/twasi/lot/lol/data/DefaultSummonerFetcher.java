@@ -18,6 +18,7 @@ public class DefaultSummonerFetcher extends SummonerFetcher {
 
     @Override
     public Summoner getSummonerByName(String name, Region region) {
+
         return getSummonerById("", null);
     }
 
