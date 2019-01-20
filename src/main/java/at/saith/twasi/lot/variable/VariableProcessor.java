@@ -3,6 +3,8 @@ package at.saith.twasi.lot.variable;
 import at.saith.twasi.lot.lol.SummonerUtil;
 import at.saith.twasi.lot.lol.summoner.*;
 
+import java.util.Arrays;
+
 public class VariableProcessor {
 
     public static String process(String name, String... params) {
@@ -36,7 +38,7 @@ public class VariableProcessor {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "ERROR loading Summoner(League of Twasi)";
+            return "ERROR loading Summoner(League of Twasi)Variable = " + Arrays.toString(params);
         }
 
         return variable;
