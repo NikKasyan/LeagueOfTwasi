@@ -4,7 +4,6 @@ import at.saith.twasi.lot.LeagueOfTwasi;
 import at.saith.twasi.lot.lol.RiotUtil;
 import at.saith.twasi.lot.lol.data.database.DataBaseFetcher;
 import at.saith.twasi.lot.lol.data.database.mongodb.summoner.MongoDBSummoner;
-import at.saith.twasi.lot.lol.data.database.mongodb.summoner.SummonerStore;
 import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
 import at.saith.twasi.lot.lol.summoner.*;
 
@@ -17,6 +16,7 @@ public class MongoDBFetcher extends DataBaseFetcher {
         LeagueOfTwasi.getDataBase().getMorphia().mapPackageFromClass(MongoDBSummoner.class);
     }
 
+
     @Override
     public Summoner getSummonerById(String id, Region region) {
         Summoner summoner = loadFromCache(id, region);
@@ -24,7 +24,7 @@ public class MongoDBFetcher extends DataBaseFetcher {
         try {
             properties = RiotUtil.getPropertyByIdentifier(id, region);
         } catch (Exception e) {
-            return SummonerStore.getSummoner(id);
+            return getSummonerFromDatabase(id, region);
         }
         if (summoner != null) {
             if (!RiotUtil.summonerUpToDate(summoner)
@@ -43,6 +43,7 @@ public class MongoDBFetcher extends DataBaseFetcher {
     public Summoner getSummonerByName(String name, Region region) {
         Summoner summoner = loadFromCache(name, region);
         SummonerProperties properties = null;
+        //Try Catch if ratelimit exceeded or any other error happend
         try {
             properties = RiotUtil.getPropertyByIdentifier(name, region);
         } catch (Exception e) {
@@ -63,7 +64,6 @@ public class MongoDBFetcher extends DataBaseFetcher {
 
     @Override
     public SummonerProperties getPropertyByName(String name, Region region) {
-
         return RiotUtil.getPropertyByName(name, region);
     }
 
@@ -82,19 +82,9 @@ public class MongoDBFetcher extends DataBaseFetcher {
         throw new UnsupportedOperationException("getRankedStats(String id, Region region, QueueType type) not implemented.");
     }
 
-    private Summoner loadFromCache(String summonerIdentifier, Region region) {
-        for (Summoner summoner : SUMMONER_CACHE) {
-            if ((summoner.getProperties().getId().equals(summonerIdentifier)
-                    || summoner.getProperties().getName().equalsIgnoreCase(summonerIdentifier)) && region == summoner.getRegion()) {
-                if (!RiotUtil.summonerUpToDate(summoner)) {
-                    System.out.println("test");
-                    return null;
-                }
-                SUMMONER_CACHE.remove(summoner);
-                return summoner;
-            }
-        }
-        return null;
+    @Override
+    public Summoner getSummonerFromDatabase(String id, Region region) {
+        return SummonerStore.getSummoner(id);
     }
 
 }

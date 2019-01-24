@@ -1,5 +1,6 @@
 package at.saith.twasi.lot.variable;
 
+import net.twasi.core.database.models.Language;
 import net.twasi.core.interfaces.api.TwasiInterface;
 import net.twasi.core.models.Message.TwasiMessage;
 import net.twasi.core.plugin.api.TwasiUserPlugin;
@@ -20,6 +21,7 @@ public class RankVariable extends TwasiVariable {
 
     @Override
     public String process(String name, TwasiInterface inf, String[] params, TwasiMessage message) {
-        return VariableProcessor.process(name, params);
+        Language language = inf.getStreamer().getUser().getConfig().getLanguage();
+        return VariableProcessor.process(name, params, language);
     }
 }

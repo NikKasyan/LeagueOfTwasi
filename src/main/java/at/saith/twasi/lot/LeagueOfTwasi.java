@@ -1,6 +1,6 @@
 package at.saith.twasi.lot;
 
-import at.saith.twasi.lot.lol.SummonerUtil;
+import at.saith.twasi.lot.lol.SummonerService;
 import at.saith.twasi.lot.lol.data.database.mongodb.MongoDBFetcher;
 import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
 import net.twasi.core.logger.TwasiLogger;
@@ -47,7 +47,7 @@ public class LeagueOfTwasi extends TwasiPlugin {
             } else {
                 apiKey = new String(Files.readAllBytes(f.toPath()));
             }
-            SummonerUtil.setup(new MongoDBFetcher(apiKey));
+            ServiceRegistry.register(new SummonerService(new MongoDBFetcher(apiKey)));
         } catch (InvalidAPIKeyException e) {
             f.delete();
             System.out.println(e.getMessage() + " Try again.");

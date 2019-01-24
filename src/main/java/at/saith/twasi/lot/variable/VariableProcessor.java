@@ -1,13 +1,15 @@
 package at.saith.twasi.lot.variable;
 
-import at.saith.twasi.lot.lol.SummonerUtil;
+import at.saith.twasi.lot.lol.SummonerService;
 import at.saith.twasi.lot.lol.summoner.*;
+import net.twasi.core.database.models.Language;
+import net.twasi.core.services.ServiceRegistry;
 
 import java.util.Arrays;
 
 public class VariableProcessor {
 
-    public static String process(String name, String... params) {
+    public static String process(String name, String[] params, Language language) {
         String variable = "";
         try {
             if (params == null)
@@ -45,12 +47,12 @@ public class VariableProcessor {
     }
 
     private static String getPropertyVariable(String varName, String summonerIdentifier, Region region) {
-        SummonerProperties properties = SummonerUtil.getPropertyByIdentifier(summonerIdentifier, region);
+        SummonerProperties properties = ServiceRegistry.get(SummonerService.class).getPropertyByIdentifier(summonerIdentifier, region);
         return getPropertyVariable(varName, properties);
     }
 
     private static String getRankVariable(String varName, String summonerIdentifier, Region region, QueueType type) {
-        Summoner summoner = SummonerUtil.getSummonerByIdentifier(summonerIdentifier, region);
+        Summoner summoner = ServiceRegistry.get(SummonerService.class).getSummonerByIdentifier(summonerIdentifier, region);
         String variable = "";
         SummonerRankedStats stats = summoner.getRankedStats(type);
 

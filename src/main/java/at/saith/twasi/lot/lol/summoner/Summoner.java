@@ -1,9 +1,6 @@
 package at.saith.twasi.lot.lol.summoner;
 
 
-import at.saith.twasi.lot.lol.SummonerUtil;
-import at.saith.twasi.lot.lol.data.database.mongodb.summoner.MongoDBSummoner;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,32 +23,6 @@ public class Summoner {
         setRankedStats(stats);
     }
 
-
-    public Summoner(MongoDBSummoner summoner, String region) {
-        this(summoner.getProperties(), summoner.getRankedStats(), region);
-    }
-
-    public Summoner(MongoDBSummoner.Properties properties, List<MongoDBSummoner.RankedStats> rankedStats, String region) {
-        this.properties = new SummonerProperties(properties.getProfileIconId(),
-                properties.getName(), properties.getSummonerLevel(),
-                properties.getRevisionDate(), properties.getId(),
-                properties.getAccountId(), properties.getPuuid());
-        this.rankedStats = new HashMap<>();
-        if (rankedStats != null) {
-            for (MongoDBSummoner.RankedStats rankedStat : rankedStats) {
-                this.rankedStats.put(
-                        QueueType.byName(rankedStat.getQueueType()),
-                        new SummonerRankedStats(rankedStat.getRank(),
-                                rankedStat.getTier(),
-                                rankedStat.getLeaguePoints(),
-                                rankedStat.getMiniSeries(),
-                                rankedStat.getQueueType(),
-                                rankedStat.getWins(),
-                                rankedStat.getLosses()));
-            }
-        }
-        this.region = Region.byName(region);
-    }
 
 
     public Summoner() {
@@ -78,19 +49,6 @@ public class Summoner {
         for (SummonerRankedStats stat : rankedStats) {
             this.rankedStats.put(stat.getQueueType(), stat);
         }
-    }
-
-    public static Summoner byId(String id, Region region) {
-        return SummonerUtil.getSummonerById(id, region);
-    }
-
-    public static Summoner byName(String summonerName) {
-        return byName(summonerName, Region.EUW1);
-    }
-
-    public static Summoner byName(String summonerName, Region region) {
-        return SummonerUtil.getSummonerByName(summonerName, region);
-
     }
 
     public String toString() {
