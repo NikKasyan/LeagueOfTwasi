@@ -53,7 +53,7 @@ public class VariableProcessor {
 
     private static String getRankVariable(String varName, String summonerIdentifier, Region region, QueueType type) {
         Summoner summoner = ServiceRegistry.get(SummonerService.class).getSummonerByIdentifier(summonerIdentifier, region);
-        String variable = "";
+        String variable;
         SummonerRankedStats stats = summoner.getRankedStats(type);
 
         if (varName.equalsIgnoreCase("rankedstats")) {

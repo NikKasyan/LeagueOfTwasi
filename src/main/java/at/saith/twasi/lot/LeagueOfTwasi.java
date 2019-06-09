@@ -29,7 +29,11 @@ public class LeagueOfTwasi extends TwasiPlugin {
         readAPIKey();
     }
 
-
+    /**
+     * Reads the file in which the apikey should be inside.
+     * If the file doesn't exist it is created an the api-key
+     * has to be added manually.
+     */
     public void readAPIKey() {
         File f = new File("apikey.txt");
         try {
@@ -61,9 +65,6 @@ public class LeagueOfTwasi extends TwasiPlugin {
         return LeagueOfTwasiUserPlugin.class;
     }
 
-    public static DatabaseService getDataBase() {
-        return ServiceRegistry.get(DatabaseService.class);
-    }
 
     public static String getPrefix() {
         return prefix;

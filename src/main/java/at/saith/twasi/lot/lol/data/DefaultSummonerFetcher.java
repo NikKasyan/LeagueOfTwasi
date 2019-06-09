@@ -34,7 +34,7 @@ public class DefaultSummonerFetcher extends SummonerFetcher {
 
     @Override
     public ArrayList<SummonerRankedStats> getRankedStats(String id, Region region) {
-        return new ArrayList<SummonerRankedStats>(Arrays.asList(new SummonerRankedStats()));
+        return new ArrayList<>(Arrays.asList(new SummonerRankedStats()));
     }
 
     @Override

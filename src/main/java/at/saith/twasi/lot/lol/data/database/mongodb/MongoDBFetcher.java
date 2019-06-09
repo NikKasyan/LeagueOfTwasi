@@ -1,54 +1,60 @@
 package at.saith.twasi.lot.lol.data.database.mongodb;
 
-import at.saith.twasi.lot.LeagueOfTwasi;
 import at.saith.twasi.lot.lol.RiotUtil;
 import at.saith.twasi.lot.lol.data.database.DataBaseFetcher;
-import at.saith.twasi.lot.lol.data.database.mongodb.summoner.MongoDBSummoner;
 import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
 import at.saith.twasi.lot.lol.summoner.*;
+import net.twasi.core.services.ServiceRegistry;
+import net.twasi.core.services.providers.DataService;
 
 import java.util.ArrayList;
 
 public class MongoDBFetcher extends DataBaseFetcher {
+
+    private  SummonerRepository repository = ServiceRegistry.get(DataService.class).get(SummonerRepository.class);
+
     public MongoDBFetcher(String apikey) throws InvalidAPIKeyException {
         super("MongoDB");
         RiotUtil.setup(apikey);
-        LeagueOfTwasi.getDataBase().getMorphia().mapPackageFromClass(MongoDBSummoner.class);
     }
 
 
     @Override
     public Summoner getSummonerById(String id, Region region) {
         Summoner summoner = loadFromCache(id, region);
-        SummonerProperties properties = null;
+        SummonerProperties properties;
         try {
             properties = RiotUtil.getPropertyByIdentifier(id, region);
         } catch (Exception e) {
-            return getSummonerFromDatabase(id, region);
+            return repository.getSummoner(id);
         }
-        if (summoner != null) {
-            if (!RiotUtil.summonerUpToDate(summoner)
-                    && summoner.getProperties().getRevisionDate() < properties.getRevisionDate()) {
-                summoner = RiotUtil.getSummonerByProperty(properties, region);
-            }
-        } else {
-            summoner = RiotUtil.getSummonerByProperty(properties, region);
-        }
-        SummonerStore.updateSummoner(summoner);
-        SUMMONER_CACHE.add(summoner);
-        return summoner;
+        return updateSummoner(summoner, properties,region);
     }
 
     @Override
     public Summoner getSummonerByName(String name, Region region) {
         Summoner summoner = loadFromCache(name, region);
-        SummonerProperties properties = null;
+        SummonerProperties properties;
         //Try Catch if ratelimit exceeded or any other error happend
         try {
             properties = RiotUtil.getPropertyByIdentifier(name, region);
         } catch (Exception e) {
-            return SummonerStore.getSummonerByName(name, region);
+            return repository.getSummonerByName(name, region);
         }
+        return updateSummoner(summoner,properties,region);
+    }
+
+    /**
+     * Updates the Summoner if he is older than 2 minutes and if his revision date changed.
+     * The revision date indicates when a change was made e.g. a game was played, icon was changed, etc.
+     * Also adds the summoner to the cache and updates it's entry in the database.
+     * @param summoner Summoner to be updated
+     * @param properties New properties for the summoner
+     * @param region region of the summoner
+     * @return the updated Summoner
+     */
+    private Summoner updateSummoner(Summoner summoner, SummonerProperties properties, Region region){
+
         if (summoner != null) {
             if (!RiotUtil.summonerUpToDate(summoner)
                     && summoner.getProperties().getRevisionDate() < properties.getRevisionDate()) {
@@ -57,7 +63,7 @@ public class MongoDBFetcher extends DataBaseFetcher {
         } else {
             summoner = RiotUtil.getSummonerByProperty(properties, region);
         }
-        SummonerStore.updateSummoner(summoner);
+        repository.updateSummoner(summoner);
         SUMMONER_CACHE.add(summoner);
         return summoner;
     }
@@ -84,7 +90,7 @@ public class MongoDBFetcher extends DataBaseFetcher {
 
     @Override
     public Summoner getSummonerFromDatabase(String id, Region region) {
-        return SummonerStore.getSummoner(id);
+        return repository.getSummoner(id);
     }
 
 }

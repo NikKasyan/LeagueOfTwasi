@@ -1,6 +1,9 @@
 package at.saith.twasi.lot.lol.summoner;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,16 +55,8 @@ public class Summoner {
     }
 
     public String toString() {
-        StringBuilder rankedStatsString = new StringBuilder("");
-        for (SummonerRankedStats rankedStat : rankedStats.values()) {
-            rankedStatsString.append("," + rankedStat);
-        }
-        return "{\n" +
-                "\"properties\":" + properties + ",\n" +
-                "\"stats\":[\n" + rankedStatsString.substring(1) + "\n], \n" +
-                "\"lastupdate\": " + lastUpdate + ",\n" +
-                "\"region\":\"" + region + "\"" +
-                "\n}";
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
     }
     public long getLastUpdate() {
         return lastUpdate;
