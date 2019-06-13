@@ -1,7 +1,6 @@
 package at.saith.twasi.lot.lol;
 
 import at.saith.twasi.lot.json.JsonUrlParser;
-import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
 import at.saith.twasi.lot.lol.summoner.Region;
 import at.saith.twasi.lot.lol.summoner.Summoner;
 import at.saith.twasi.lot.lol.summoner.SummonerProperties;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RiotUtil {
-    private static String API_KEY;
+    //private static String API_KEY;
     private static HashMap<Region, RateLimitationManager> rateLimitationManagers;
     private static final long updateRate = 120_000L;//In millis
     private static final String BASE_URL = "https://%REGION%.api.riotgames.com/";
@@ -28,57 +27,48 @@ public class RiotUtil {
 
     //TODO: ADD Rate-Limitations
     // https://developer.riotgames.com/rate-limiting.html
-    public static void setup(String apikey) throws InvalidAPIKeyException {
-        if (API_KEY == null) {
-            API_KEY = apikey;
-            if (!isValidKey(apikey)) {
-                API_KEY = null;
-                throw new InvalidAPIKeyException(apikey);
-            }
-            rateLimitationManagers = new HashMap<>();
-        }
-    }
 
 
-    public static Summoner getSummonerByProperty(SummonerProperties properties, Region region) {
-        ArrayList<SummonerRankedStats> stats = getRankedStatsById(properties.getId(), region);
+    public static Summoner getSummonerByProperty(SummonerProperties properties, Region region, String apikey) {
+        ArrayList<SummonerRankedStats> stats = getRankedStatsById(properties.getId(), region, apikey);
         return new Summoner(properties, stats, region);
     }
-    public static Summoner getSummonerByName(String name, Region region) {
-        SummonerProperties properties = getPropertyByName(name, region);
-        ArrayList<SummonerRankedStats> rankedStats = getRankedStatsById(properties.getId(), region);
+
+    public static Summoner getSummonerByName(String name, Region region, String apikey) {
+        SummonerProperties properties = getPropertyByName(name, region, apikey);
+        ArrayList<SummonerRankedStats> rankedStats = getRankedStatsById(properties.getId(), region, apikey);
         return new Summoner(properties, rankedStats, region);
     }
 
-    public static Summoner getSummonerById(String id, Region region) {
-        SummonerProperties properties = getPropertyById(id, region);
-        ArrayList<SummonerRankedStats> rankedStats = getRankedStatsById(id, region);
+    public static Summoner getSummonerById(String id, Region region, String apikey) {
+        SummonerProperties properties = getPropertyById(id, region, apikey);
+        ArrayList<SummonerRankedStats> rankedStats = getRankedStatsById(id, region, apikey);
         return new Summoner(properties, rankedStats, region);
     }
 
-    public static SummonerProperties getPropertyByIdentifier(String identifier, Region region) {
+    public static SummonerProperties getPropertyByIdentifier(String identifier, Region region, String apikey) {
         if (identifier.length() > 16) {
-            return getPropertyById(identifier, region);
+            return getPropertyById(identifier, region, apikey);
         } else {
-            return getPropertyByName(identifier, region);
+            return getPropertyByName(identifier, region, apikey);
         }
     }
 
-    public static SummonerProperties getPropertyById(String id, Region region) {
-        JsonObject obj = getJsonObjectFromUrl(SUMMONER_BY_ID_URL, region, id);
+    public static SummonerProperties getPropertyById(String id, Region region, String apikey) {
+        JsonObject obj = getJsonObjectFromUrl(SUMMONER_BY_ID_URL, region, id, apikey);
         if (obj == null) return null;
         return new SummonerProperties(obj);
     }
 
-    public static SummonerProperties getPropertyByName(String name, Region region) {
-        JsonObject obj = getJsonObjectFromUrl(SUMMONER_BY_NAME_URL, region, name);
+    public static SummonerProperties getPropertyByName(String name, Region region, String apikey) {
+        JsonObject obj = getJsonObjectFromUrl(SUMMONER_BY_NAME_URL, region, name, apikey);
         if (obj == null) return null;
         return new SummonerProperties(obj);
     }
 
-    public static ArrayList<SummonerRankedStats> getRankedStatsById(String id, Region region) {
+    public static ArrayList<SummonerRankedStats> getRankedStatsById(String id, Region region, String apikey) {
         ArrayList<SummonerRankedStats> stats = new ArrayList<>();
-        JsonArray array = getJsonArrayFromUrl(RANKSTATS_BY_ID_URL, region, id);
+        JsonArray array = getJsonArrayFromUrl(RANKSTATS_BY_ID_URL, region, id, apikey);
         for (JsonElement element : array) {
             if (element instanceof JsonObject) {
                 stats.add(new SummonerRankedStats(element.getAsJsonObject()));
@@ -87,12 +77,12 @@ public class RiotUtil {
         return stats;
     }
 
-    public static boolean summonerUpToDate(Summoner summoner) {
+    public static boolean summonerUpToDate(Summoner summoner, String apikey) {
         return summoner.getLastUpdate() + updateRate >= System.currentTimeMillis();
     }
 
-    private static JsonArray getJsonArrayFromUrl(String urlString, Region region, String param) {
-        URL summonerPropertiesUrl = getValidURL(urlString, param, region);
+    private static JsonArray getJsonArrayFromUrl(String urlString, Region region, String param, String apikey) {
+        URL summonerPropertiesUrl = getValidURL(urlString, param, region, apikey);
         if (checkRateLimitation(region, urlString)) {
 
         }
@@ -111,8 +101,8 @@ public class RiotUtil {
     */
     }
 
-    private static JsonObject getJsonObjectFromUrl(String urlString, Region region, String param) {
-        URL summonerPropertiesUrl = getValidURL(urlString, param, region);
+    private static JsonObject getJsonObjectFromUrl(String urlString, Region region, String param, String apikey) {
+        URL summonerPropertiesUrl = getValidURL(urlString, param, region, apikey);
 
         return getJsonObjectFromUrl(summonerPropertiesUrl);
     }
@@ -122,7 +112,7 @@ public class RiotUtil {
         return new JsonUrlParser(url).parseUrlAsJsonObject();
     }
 
-    private static boolean isValidKey(String apikey) {
+    public static boolean isValidKey(String apikey) {
         URL statusUrl = getValidURL(STATUS_URL, "euw1", apikey);
         JsonObject object = getJsonObjectFromUrl(statusUrl);
         if (object == null) {
@@ -137,8 +127,8 @@ public class RiotUtil {
     }
 
 
-    private static URL getValidURL(String urlString, String param, Region region) {
-        return getValidURL(urlString + param, region.toString(), API_KEY);
+    private static URL getValidURL(String urlString, String param, Region region, String apikey) {
+        return getValidURL(urlString + param, region.toString(), apikey);
     }
 
     private static URL getValidURL(String urlString, String regionString, String apiKey) {
@@ -151,11 +141,8 @@ public class RiotUtil {
         return url;
     }
 
-    private static URL getValidURL(String urlString, Region region) {
-        return getValidURL(urlString, region.name());
+    private static URL getValidURL(String urlString, Region region, String apikey) {
+        return getValidURL(urlString, region.name(), apikey);
     }
 
-    private static URL getValidURL(String urlString, String regionString) {
-        return getValidURL(urlString, regionString, API_KEY);
-    }
 }

@@ -1,6 +1,6 @@
 package at.saith.twasi.lot.lol.data.exception;
 
-public class InvalidAPIKeyException extends Exception {
+public class InvalidAPIKeyException extends RuntimeException {
 
 
     private static final long serialVersionUID = -1324769216445927543L;

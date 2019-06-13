@@ -1,8 +1,10 @@
 package at.saith.twasi.lot;
 
+import at.saith.twasi.lot.api.LeagueOfTwasiResolver;
 import at.saith.twasi.lot.lol.SummonerService;
 import at.saith.twasi.lot.lol.data.database.mongodb.MongoDBFetcher;
 import at.saith.twasi.lot.lol.data.exception.InvalidAPIKeyException;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import net.twasi.core.logger.TwasiLogger;
 import net.twasi.core.plugin.TwasiPlugin;
 import net.twasi.core.plugin.api.TwasiUserPlugin;
@@ -26,45 +28,15 @@ public class LeagueOfTwasi extends TwasiPlugin {
     public void onActivate() {
 
         TwasiLogger.log.info(prefix + "enabled.");
-        readAPIKey();
-    }
-
-    /**
-     * Reads the file in which the apikey should be inside.
-     * If the file doesn't exist it is created an the api-key
-     * has to be added manually.
-     */
-    public void readAPIKey() {
-        File f = new File("apikey.txt");
-        try {
-
-            String apiKey = "";
-            if (!f.exists()) {
-                Scanner scanner = new Scanner(System.in);
-                TwasiLogger.log.info(prefix + "enter a valid API-Key");
-                System.out.print(">");
-                FileWriter writer = new FileWriter(f);
-                apiKey = scanner.nextLine().replaceAll("\\s", "");
-                writer.write(apiKey);
-                writer.flush();
-                writer.close();
-            } else {
-                apiKey = new String(Files.readAllBytes(f.toPath()));
-            }
-            ServiceRegistry.register(new SummonerService(new MongoDBFetcher(apiKey)));
-        } catch (InvalidAPIKeyException e) {
-            f.delete();
-            System.out.println(e.getMessage() + " Try again.");
-
-            readAPIKey();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
     public Class<? extends TwasiUserPlugin> getUserPluginClass() {
         return LeagueOfTwasiUserPlugin.class;
     }
 
+    @Override
+    public GraphQLQueryResolver getGraphQLResolver() {
+        return new LeagueOfTwasiResolver();
+    }
 
     public static String getPrefix() {
         return prefix;

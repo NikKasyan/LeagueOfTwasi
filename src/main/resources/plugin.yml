@@ -5,3 +5,52 @@ description: Creates variables you can use in a command.
 helpText: Use $rank([server],(summonerId|name),[SOLO|FLEX|FLEX_3])
 version: 1.0
 messageHandler: true
+
+api: |
+  type LeagueOfTwasi {
+    updateKey(apikey: String): Boolean,
+    summonerFetcher: DataFetcher
+  }
+  type DataFetcher {
+    summonerByName(summonerName: String, region: Region): Summoner,
+    summonerById(summonerId: String, region: Region): Summoner
+  }
+  type Summoner {
+    properties: SummonerProperties,
+    rankedStats: [SummonerRankedStats],
+    region: Region
+  }
+  type SummonerProperties{
+    name: String,
+    profileIconId: Int,
+    summonerLevel: Int,
+    id: String,
+    accountId: String,
+    puuid: String
+  }
+  type SummonerRankedStats{
+    rank: String,
+    tier: String,
+    leaguePoints: Int,
+    miniSeriesProgress: String,
+    queueType: QueueType,
+    wins: Int,
+    losses: Int
+  }
+  enum Region {
+    RU
+    KR
+    EUW1
+    BR1
+    OC1
+    JP1
+    EUN1
+    TR1
+    LA1
+    LA2
+  }
+  enum QueueType {
+    RANKED_SOLO_5X5
+    RANKED_FLEX_SR
+    RANKED_SOLO_3X3
+  }
