@@ -115,6 +115,25 @@ public class MongoDBFetcher extends DataBaseFetcher {
         if(!valid_key)return null;
         return repository.getSummoner(id);
     }
+    public boolean hasValidKey(){
+        return valid_key;
+    }
+
+    public Summoner getSummonerByIdentifier(String identifier, Region region) {
+        if (identifier.length() > 16) {
+            return getSummonerById(identifier, region);
+        } else {
+            return getSummonerByName(identifier, region);
+        }
+    }
+    public SummonerProperties getPropertyByIdentifier(String identifier, Region region) {
+        if (identifier.length() > 16) {
+            return getPropertyById(identifier, region);
+        } else {
+            return getPropertyByName(identifier, region);
+        }
+    }
+
     /**
      * Returns a Summoner if it was found in the Cache. Might return null if the Summoner wasn't found
      * or isn't up to date(older than 2 Minutes).

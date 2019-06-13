@@ -22,6 +22,6 @@ public class RankVariable extends TwasiVariable {
     @Override
     public String process(String name, TwasiInterface inf, String[] params, TwasiMessage message) {
         Language language = inf.getStreamer().getUser().getConfig().getLanguage();
-        return VariableProcessor.process(name, params, language);
+        return new VariableProcessor(inf.getStreamer().getUser()).process(name, params, language);
     }
 }

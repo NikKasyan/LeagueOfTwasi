@@ -1,16 +1,26 @@
 package at.saith.twasi.lot.variable;
 
+import at.saith.twasi.lot.api.DataFetcherRepository;
 import at.saith.twasi.lot.lol.SummonerService;
+import at.saith.twasi.lot.lol.data.database.mongodb.MongoDBFetcher;
 import at.saith.twasi.lot.lol.summoner.*;
 import net.twasi.core.database.models.Language;
+import net.twasi.core.database.models.User;
 import net.twasi.core.services.ServiceRegistry;
+import net.twasi.core.services.providers.DataService;
 
 import java.util.Arrays;
 
 public class VariableProcessor {
-
-    public static String process(String name, String[] params, Language language) {
+    private static final DataFetcherRepository repository = ServiceRegistry.get(DataService.class).get(DataFetcherRepository.class);
+    private MongoDBFetcher summonerFetcher;
+    public VariableProcessor(User user){
+        summonerFetcher =  new MongoDBFetcher(repository.getApikey(user));
+    }
+    public String process(String name, String[] params, Language language) {
         String variable = "";
+
+       if(!summonerFetcher.hasValidKey())return "INVALID_API_KEY";
         try {
             if (params == null)
                 return variable;
@@ -46,13 +56,13 @@ public class VariableProcessor {
         return variable;
     }
 
-    private static String getPropertyVariable(String varName, String summonerIdentifier, Region region) {
-        SummonerProperties properties = ServiceRegistry.get(SummonerService.class).getPropertyByIdentifier(summonerIdentifier, region);
+    private String getPropertyVariable(String varName, String summonerIdentifier, Region region) {
+        SummonerProperties properties = summonerFetcher.getPropertyByIdentifier(summonerIdentifier,region);
         return getPropertyVariable(varName, properties);
     }
 
-    private static String getRankVariable(String varName, String summonerIdentifier, Region region, QueueType type) {
-        Summoner summoner = ServiceRegistry.get(SummonerService.class).getSummonerByIdentifier(summonerIdentifier, region);
+    private String getRankVariable(String varName, String summonerIdentifier, Region region, QueueType type) {
+        Summoner summoner = summonerFetcher.getSummonerByIdentifier(summonerIdentifier,region);
         String variable;
         SummonerRankedStats stats = summoner.getRankedStats(type);
 

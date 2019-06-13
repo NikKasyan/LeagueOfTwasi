@@ -13,12 +13,15 @@ public class LeagueOfTwasiDTO {
     private MongoDBFetcher summonerFetcher;
     public LeagueOfTwasiDTO(User user) {
         this.user = user;
-        String apikey = repository.getApikey(user.getTwitchAccount().getUserName());
+        String apikey = repository.getApikey(user);
         summonerFetcher = new MongoDBFetcher(apikey);
     }
     public boolean updateKey(String apiKey){
-        repository.updateApiKey(user.getTwitchAccount().getUserName(),apiKey);
-        return summonerFetcher.setAPIKey(apiKey);
+        boolean validKey = summonerFetcher.setAPIKey(apiKey);
+        if(validKey) {
+            repository.updateApiKey(user, apiKey);
+        }
+        return validKey;
     }
 
     public MongoDBFetcher getSummonerFetcher() {
